@@ -26,13 +26,8 @@ exclude_workshop_items = [
     "LitSortOGSN_chocolate",
     "LitSortOGSN_rice",
     "Authentic Z - Fashion Montage",
+    "ATA_Jeep_x2",
     "ATA_Jeep_x10",
-    "ATA_Jeep_x4",
-    "PLLootF",
-    "PLLootG",
-    "PLLootF_Patch",
-    "PLLootG_Patch",
-    ""
 ]
 
 
@@ -47,6 +42,11 @@ async def do_mod_request(session, mod_id, mod_link):
     map_folder = mod_soup.find("div", class_="workshopItemDescription").find_all(string=map_folder_regex)
     # TODO: Detect dependencies and make sure we have all of them at the end.
     dependencies = []
+    try:
+        details = [ x.text for x in mod_soup.find_all("div", class_="detailsStatRight")]
+        print(f"{mod_id} : Size - {details[0]} : Created - {details[1]} : Updated - {details[-1]}")
+    except Exception:
+        print(f"could not get details for {mod_link}")
     return mod_id, mod_link, workshop_names, map_folder, dependencies
 
 
@@ -57,11 +57,15 @@ async def main():
             soup = BeautifulSoup(await req.text(), 'html.parser')
         list_of_items = soup.find_all('div', class_='collectionItem')
 
+
         mod_links = []
 
         for value in list_of_items:
             mod_id = value['id'].lstrip('sharedfile_')
             mod_link = value.div.a['href']
+            if mod_id == "566115016":
+                # This is ItemTweakerAPI - So dumb, he didn't add mod ID to his description of his new one.
+                continue
             mod_links.append((mod_id, mod_link))
         print("Starting to fetch all Workshop Item Descriptions")
         return await asyncio.gather(*(do_mod_request(session, mod_id, mod_link) for mod_id, mod_link in mod_links))
@@ -116,11 +120,12 @@ for mod_id, mod_link, workshop_names, map_folder, dependencies in workshop_items
     if map_folder:
         map_folders.extend(map_folder)
 
-
-breakpoint()
+# Add ItemTweakerAPI
+mod_names.add("ItemTweakerAPI")
+mod_ids.add("566115016")
 
 map_folders.add("Muldraugh, KY")
 print("Mods=" + ";".join(mod_names))
 print("WorkshopItems=" + ";".join(mod_ids))
-print("Map=:" + ";".join(map_folders))
+print("Map=" + ";".join(map_folders))
 breakpoint()
