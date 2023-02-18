@@ -25,9 +25,16 @@ exclude_workshop_items = [
     "LitSortOGSN_diamond",
     "LitSortOGSN_chocolate",
     "LitSortOGSN_rice",
-    "Authentic Z - Fashion Montage",
+    "AuthenticZBackpacks+",
+    "AuthenticZLite",
+    "ATA_Jeep",
     "ATA_Jeep_x2",
     "ATA_Jeep_x10",
+    "FRUsedCarsNLF",
+    "WaterDispenserDisabler",
+    "RealisticArmyZombiesRBB",
+    "RealisticArmyZombiesSMUI",
+
 ]
 
 
@@ -78,6 +85,7 @@ mod_ids = set()
 mod_names = set()
 map_folders = set()
 
+
 for mod_id, mod_link, workshop_names, map_folder, dependencies in workshop_items:
     if not workshop_names:
         print(f"Could not find a MOD ID for {mod_link}")
@@ -85,7 +93,12 @@ for mod_id, mod_link, workshop_names, map_folder, dependencies in workshop_items
     # If there's only 1 workshop name or all items are the same name
     if len(workshop_names) == 1 or all(x == workshop_names[0] for x in workshop_names):
         mod_ids.add(mod_id.replace("Workshop ID:", "").strip())
-        mod_names.add(workshop_names[0].replace("Mod ID:", "").strip())
+        mod_name = workshop_names[0].split("Mod ID:")[-1].strip()
+        if mod_name:
+            print(f"Added {mod_name}")
+        else:
+            print(f"Could not find modname for {mod_link}")
+        mod_names.add(mod_name)
     else:
         print(f"Found multiple Workshop items/Mod IDS for {mod_link}")
 
@@ -116,9 +129,9 @@ for mod_id, mod_link, workshop_names, map_folder, dependencies in workshop_items
                     break
                 except IndexError:
                     print("Invalid number given.")
-
     if map_folder:
-        map_folders.extend(map_folder)
+        for map in map_folder:
+            map_folders.add(map.split(": ")[-1])
 
 # Add ItemTweakerAPI
 mod_names.add("ItemTweakerAPI")
